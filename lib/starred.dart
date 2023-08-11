@@ -113,7 +113,7 @@ class _StarredPageState extends State<StarredPage> {
                         items.removeAt(index);
                       });
                     });
-                  });
+                  }, loadStops);
                 },
               ),
             ),

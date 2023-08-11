@@ -16,7 +16,8 @@ class BeniBusApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightBlueAccent),
         useMaterial3: true,
       ),
-      home: const StopsPage(title: 'Benibus'),
+      home: const StopsPage(title: 'Benibus 🚍'),
+      debugShowCheckedModeBanner: false,
     );
   }
 }

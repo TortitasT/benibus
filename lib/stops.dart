@@ -23,8 +23,16 @@ Future<List<StopResource>> getStops(List<StopResource> currentStops) async {
       : jsonDecode((await http.get(Uri.parse(
                   'https://apisvt.avanzagrupo.com/lineas/getParadas?empresa=5&N=1')))
               .body)['data']['paradas']
-          .map<StopResource>((e) => StopResource(e['cod'], e['ds']))
-          .toList();
+          .map<StopResource>((e) {
+          String id = e['cod'];
+          String name = e['ds'];
+
+          List<String> lines = e['lines'] is List
+              ? e['lines'].map<String>((e) => e.toString()).toList()
+              : [e['lines']];
+
+          return StopResource(id, name, lines);
+        }).toList();
 
   // Set starred
   List<StopResource> stopsResources = stopResources.map((stop) {
@@ -121,7 +129,7 @@ class _StopsPageState extends State<StopsPage> {
                     setState(() {
                       stops[index].starred = state;
                     });
-                  });
+                  }, loadStops);
                 },
               ),
             ),
