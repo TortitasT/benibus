@@ -1,5 +1,5 @@
-import 'package:benibus/starred.dart';
-import 'package:benibus/stop.dart';
+import 'package:benibus/pages/starred.dart';
+import 'package:benibus/pages/stop.dart';
 import 'package:flutter/material.dart';
 
 class StopResource {

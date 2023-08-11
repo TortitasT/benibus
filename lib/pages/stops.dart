@@ -1,40 +1,52 @@
 import 'dart:convert';
-import 'dart:io';
 
+import 'package:benibus/pages/starred.dart';
 import 'package:benibus/resources.dart';
-import 'package:benibus/stop.dart';
-import 'package:benibus/stops.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
 
-class StarredPage extends StatefulWidget {
-  const StarredPage({super.key, required this.title});
+class StopsPage extends StatefulWidget {
+  const StopsPage({super.key, required this.title});
   final String title;
 
   @override
-  State<StarredPage> createState() => _StarredPageState();
+  State<StopsPage> createState() => _StopsPageState();
 }
 
-Future<List<String>> getStarredStopsFromDisk() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
+Future<List<StopResource>> getStops(List<StopResource> currentStops) async {
+  List<String> starredStops = await getStarredStopsFromDisk();
 
-  return prefs.getStringList('starred_stops') ?? [];
+  // Load if not loaded
+  List<StopResource> stopResources = currentStops.isNotEmpty
+      ? currentStops
+      : jsonDecode((await http.get(Uri.parse(
+                  'https://apisvt.avanzagrupo.com/lineas/getParadas?empresa=5&N=1')))
+              .body)['data']['paradas']
+          .map<StopResource>((e) {
+          String id = e['cod'];
+          String name = e['ds'];
+
+          List<String> lines = e['lines'] is List
+              ? e['lines'].map<String>((e) => e.toString()).toList()
+              : [e['lines']];
+
+          return StopResource(id, name, lines);
+        }).toList();
+
+  // Set starred
+  List<StopResource> stopsResources = stopResources.map((stop) {
+    if (starredStops.contains(stop.id)) {
+      stop.starred = true;
+    } else {
+      stop.starred = false;
+    }
+    return stop;
+  }).toList();
+
+  return stopsResources;
 }
 
-Future<bool> toggleStarredStopToDisk(String id) async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  List<String> starredStops = prefs.getStringList('starred_stops') ?? [];
-
-  bool isAlreadyStarred = starredStops.contains(id);
-
-  !isAlreadyStarred ? starredStops.add(id) : starredStops.remove(id);
-  prefs.setStringList('starred_stops', starredStops);
-
-  return !isAlreadyStarred;
-}
-
-class _StarredPageState extends State<StarredPage> {
+class _StopsPageState extends State<StopsPage> {
   bool loading = false;
   List<StopResource> stops = [];
   List<StopResource> items = [];
@@ -44,9 +56,7 @@ class _StarredPageState extends State<StarredPage> {
       loading = true;
     });
 
-    List<StopResource> stopsResources = (await getStops(stops)).where((stop) {
-      return stop.starred;
-    }).toList();
+    final stopsResources = await getStops(stops);
 
     setState(() {
       loading = false;
@@ -75,10 +85,25 @@ class _StarredPageState extends State<StarredPage> {
   }
 
   @override
-  Widget build(BuildContext buildContext) {
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) =>
+                        const StarredPage(title: 'Mis paradas')),
+              ).then((value) {
+                loadStops();
+              });
+            },
+            icon: const Icon(Icons.star),
+          ),
+        ],
       ),
       body: Stack(children: [
         if (loading) const Center(child: CircularProgressIndicator()),
@@ -103,29 +128,12 @@ class _StarredPageState extends State<StarredPage> {
                     setState(() {
                       stops[index].starred = state;
                     });
-
-                    Future.delayed(const Duration(seconds: 1), () {
-                      if (stops[index].starred) {
-                        return;
-                      }
-
-                      setState(() {
-                        items.removeAt(index);
-                      });
-                    });
                   }, loadStops);
                 },
               ),
             ),
           ]),
       ]),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          loadStops();
-        },
-        tooltip: 'Refresh',
-        child: const Icon(Icons.refresh),
-      ),
     );
   }
 }

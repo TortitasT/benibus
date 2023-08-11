@@ -1,4 +1,4 @@
-import 'package:benibus/stops.dart';
+import 'package:benibus/pages/stops.dart';
 import 'package:flutter/material.dart';
 
 void main() {

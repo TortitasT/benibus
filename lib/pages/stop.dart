@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:benibus/starred.dart';
+import 'package:benibus/pages/starred.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
