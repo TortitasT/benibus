@@ -15,6 +15,7 @@ class StopPage extends StatefulWidget {
 }
 
 class _StopPageState extends State<StopPage> {
+  bool loading = true;
   List<dynamic> items = [];
 
   void loadStop() async {
@@ -23,9 +24,9 @@ class _StopPageState extends State<StopPage> {
                 widget.id)))
         .body));
 
-    print(responseItems);
-
     setState(() {
+      loading = false;
+
       items.clear();
       items.addAll(responseItems['data']['traficos']
           .map((e) => e['coLinea'] + ' - ' + e['quedan']));
@@ -41,25 +42,28 @@ class _StopPageState extends State<StopPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-        actions: [
-          IconButton(
-            onPressed: () {
-              loadStop();
-            },
-            icon: const Icon(Icons.refresh),
-          ),
-        ],
-      ),
-      body: ListView.builder(
-        itemCount: items.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text(items[index]),
-          );
-        },
-      ),
-    );
+        appBar: AppBar(
+          title: Text(widget.title),
+          actions: [
+            IconButton(
+              onPressed: () {
+                loadStop();
+              },
+              icon: const Icon(Icons.refresh),
+            ),
+          ],
+        ),
+        body: Stack(children: [
+          if (loading) const Center(child: CircularProgressIndicator()),
+          if (!loading)
+            ListView.builder(
+              itemCount: items.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(items[index]),
+                );
+              },
+            ),
+        ]));
   }
 }
