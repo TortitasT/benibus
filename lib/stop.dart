@@ -42,28 +42,36 @@ class _StopPageState extends State<StopPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(widget.title),
-          actions: [
-            IconButton(
-              onPressed: () {
-                loadStop();
-              },
-              icon: const Icon(Icons.refresh),
-            ),
-          ],
-        ),
-        body: Stack(children: [
-          if (loading) const Center(child: CircularProgressIndicator()),
-          if (!loading)
-            ListView.builder(
-              itemCount: items.length,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(items[index]),
-                );
-              },
-            ),
-        ]));
+      appBar: AppBar(
+        title: Text(widget.title),
+        actions: [
+          IconButton(
+            onPressed: () {
+              loadStop();
+            },
+            icon: const Icon(Icons.refresh),
+          ),
+        ],
+      ),
+      body: Stack(children: [
+        if (loading) const Center(child: CircularProgressIndicator()),
+        if (!loading)
+          ListView.builder(
+            itemCount: items.length,
+            itemBuilder: (context, index) {
+              return ListTile(
+                title: Text(items[index]),
+              );
+            },
+          ),
+      ]),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          loadStop();
+        },
+        tooltip: 'Refresh',
+        child: const Icon(Icons.refresh),
+      ),
+    );
   }
 }

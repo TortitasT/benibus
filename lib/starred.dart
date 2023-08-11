@@ -1,45 +1,40 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:benibus/resources.dart';
-import 'package:benibus/starred.dart';
 import 'package:benibus/stop.dart';
+import 'package:benibus/stops.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
-class StopsPage extends StatefulWidget {
-  const StopsPage({super.key, required this.title});
+class StarredPage extends StatefulWidget {
+  const StarredPage({super.key, required this.title});
   final String title;
 
   @override
-  State<StopsPage> createState() => _StopsPageState();
+  State<StarredPage> createState() => _StarredPageState();
 }
 
-Future<List<StopResource>> getStops(List<StopResource> currentStops) async {
-  List<String> starredStops = await getStarredStopsFromDisk();
+Future<List<String>> getStarredStopsFromDisk() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
 
-  // Load if not loaded
-  List<StopResource> stopResources = currentStops.isNotEmpty
-      ? currentStops
-      : jsonDecode((await http.get(Uri.parse(
-                  'https://apisvt.avanzagrupo.com/lineas/getParadas?empresa=5&N=1')))
-              .body)['data']['paradas']
-          .map<StopResource>((e) => StopResource(e['cod'], e['ds']))
-          .toList();
-
-  // Set starred
-  List<StopResource> stopsResources = stopResources.map((stop) {
-    if (starredStops.contains(stop.id)) {
-      stop.starred = true;
-    } else {
-      stop.starred = false;
-    }
-    return stop;
-  }).toList();
-
-  return stopsResources;
+  return prefs.getStringList('starred_stops') ?? [];
 }
 
-class _StopsPageState extends State<StopsPage> {
+Future<bool> toggleStarredStopToDisk(String id) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  List<String> starredStops = prefs.getStringList('starred_stops') ?? [];
+
+  bool isAlreadyStarred = starredStops.contains(id);
+
+  !isAlreadyStarred ? starredStops.add(id) : starredStops.remove(id);
+  prefs.setStringList('starred_stops', starredStops);
+
+  return !isAlreadyStarred;
+}
+
+class _StarredPageState extends State<StarredPage> {
   bool loading = false;
   List<StopResource> stops = [];
   List<StopResource> items = [];
@@ -49,7 +44,9 @@ class _StopsPageState extends State<StopsPage> {
       loading = true;
     });
 
-    final stopsResources = await getStops(stops);
+    List<StopResource> stopsResources = (await getStops(stops)).where((stop) {
+      return stop.starred;
+    }).toList();
 
     setState(() {
       loading = false;
@@ -78,25 +75,10 @@ class _StopsPageState extends State<StopsPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext buildContext) {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        const StarredPage(title: 'Mis paradas')),
-              ).then((value) {
-                loadStops();
-              });
-            },
-            icon: const Icon(Icons.star),
-          ),
-        ],
       ),
       body: Stack(children: [
         if (loading) const Center(child: CircularProgressIndicator()),
@@ -121,12 +103,29 @@ class _StopsPageState extends State<StopsPage> {
                     setState(() {
                       stops[index].starred = state;
                     });
+
+                    Future.delayed(const Duration(seconds: 1), () {
+                      if (stops[index].starred) {
+                        return;
+                      }
+
+                      setState(() {
+                        items.removeAt(index);
+                      });
+                    });
                   });
                 },
               ),
             ),
           ]),
       ]),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          loadStops();
+        },
+        tooltip: 'Refresh',
+        child: const Icon(Icons.refresh),
+      ),
     );
   }
 }
