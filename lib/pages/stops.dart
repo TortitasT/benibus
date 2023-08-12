@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:benibus/geolocator.dart';
 import 'package:benibus/pages/map.dart';
 import 'package:benibus/pages/starred.dart';
 import 'package:benibus/resources.dart';
@@ -49,6 +50,20 @@ Future<List<StopResource>> getStops(List<StopResource> currentStops) async {
     }
     return stop;
   }).toList();
+
+  // Order by closest
+  try {
+    LatLng currentLocation = await getCurrentLatLng();
+    stopsResources.sort((a, b) {
+      double distanceA =
+          const Distance().as(LengthUnit.Meter, currentLocation, a.latLng);
+      double distanceB =
+          const Distance().as(LengthUnit.Meter, currentLocation, b.latLng);
+      return distanceA.compareTo(distanceB);
+    });
+  } catch (e) {
+    print(e);
+  }
 
   return stopsResources;
 }

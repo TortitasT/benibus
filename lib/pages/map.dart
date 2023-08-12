@@ -108,15 +108,6 @@ class _MapPageState extends State<MapPage> {
                 minZoom: 1.0,
               ),
               nonRotatedChildren: [
-                // RichAttributionWidget(
-                //   attributions: [
-                //     TextSourceAttribution(
-                //       'OpenStreetMap contributors',
-                //       onTap: () => launchUrl(
-                //           Uri.parse('https://openstreetmap.org/copyright')),
-                //     ),
-                //   ],
-                // ),
                 Align(
                   alignment: Alignment.bottomRight,
                   child: Padding(
@@ -129,7 +120,6 @@ class _MapPageState extends State<MapPage> {
                     ),
                   ),
                 ),
-
                 Align(
                   alignment: Alignment.bottomLeft,
                   child: Padding(
