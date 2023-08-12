@@ -42,13 +42,13 @@ class _MapPageState extends State<MapPage> {
   List<Marker> getStopMarkers() {
     return stops
         .map((stop) => Marker(
-              width: 40.0,
-              height: 40.0,
+              width: 80.0,
+              height: 80.0,
               point: stop.latLng,
               builder: (ctx) => IconButton(
                 icon: Icon(
-                  Icons.location_pin,
-                  color: stop.starred ? Colors.yellow : Colors.blue,
+                  Icons.location_on,
+                  color: stop.starred ? Colors.orange : Colors.green,
                 ),
                 onPressed: () {
                   Navigator.push(
@@ -108,15 +108,41 @@ class _MapPageState extends State<MapPage> {
                 minZoom: 1.0,
               ),
               nonRotatedChildren: [
-                RichAttributionWidget(
-                  attributions: [
-                    TextSourceAttribution(
-                      'OpenStreetMap contributors',
-                      onTap: () => launchUrl(
-                          Uri.parse('https://openstreetmap.org/copyright')),
+                // RichAttributionWidget(
+                //   attributions: [
+                //     TextSourceAttribution(
+                //       'OpenStreetMap contributors',
+                //       onTap: () => launchUrl(
+                //           Uri.parse('https://openstreetmap.org/copyright')),
+                //     ),
+                //   ],
+                // ),
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: FloatingActionButton(
+                      onPressed: () {
+                        loadInitialLatLong();
+                      },
+                      child: const Icon(Icons.my_location),
                     ),
-                  ],
+                  ),
                 ),
+
+                Align(
+                  alignment: Alignment.bottomLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextButton(
+                      onPressed: () {
+                        launchUrl(
+                            Uri.parse('https://openstreetmap.org/copyright'));
+                      },
+                      child: const Text('OpenStreetMap contributors'),
+                    ),
+                  ),
+                )
               ],
               children: [
                 TileLayer(
