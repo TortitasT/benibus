@@ -61,9 +61,7 @@ Future<List<StopResource>> getStops(List<StopResource> currentStops) async {
           const Distance().as(LengthUnit.Meter, currentLocation, b.latLng);
       return distanceA.compareTo(distanceB);
     });
-  } catch (e) {
-    print(e);
-  }
+  } catch (_) {}
 
   return stopsResources;
 }

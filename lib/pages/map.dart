@@ -31,7 +31,7 @@ class _MapPageState extends State<MapPage> {
     loadInitialLatLong();
   }
 
-  void loadStops() async {
+  Future<void> loadStops() async {
     List<StopResource> newStops = await getStops([]);
 
     setState(() {
@@ -64,24 +64,40 @@ class _MapPageState extends State<MapPage> {
         .toList();
   }
 
+  Future<void> centerToCurrentLocation() async {
+    bool lastLoading = loading;
+
+    setState(() {
+      loading = true;
+    });
+
+    try {
+      LatLng newLatLng = await getCurrentLatLng();
+
+      setState(() {
+        latLng = newLatLng;
+      });
+    } catch (_) {}
+
+    setState(() {
+      loading = lastLoading;
+    });
+  }
+
   void loadInitialLatLong() async {
     setState(() {
       loading = true;
     });
 
     if (widget.stop == null) {
-      LatLng newLatLng = await getCurrentLatLng();
-
-      setState(() {
-        latLng = newLatLng;
-      });
+      await centerToCurrentLocation();
     } else {
       setState(() {
         latLng = widget.stop!.latLng;
       });
     }
 
-    loadStops();
+    await loadStops();
 
     setState(() {
       loading = false;
@@ -114,7 +130,7 @@ class _MapPageState extends State<MapPage> {
                     padding: const EdgeInsets.all(8.0),
                     child: FloatingActionButton(
                       onPressed: () {
-                        loadInitialLatLong();
+                        centerToCurrentLocation();
                       },
                       child: const Icon(Icons.my_location),
                     ),
