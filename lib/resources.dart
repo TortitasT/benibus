@@ -37,3 +37,24 @@ class StopResource {
     );
   }
 }
+
+class TraficResource {
+  final String code;
+  final String description;
+  final String lasting;
+
+  TraficResource(this.code, this.description, this.lasting);
+
+  ListTile buildStopTile(BuildContext context) {
+    return ListTile(
+      title: Text(code),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(description),
+        ],
+      ),
+      trailing: Text(lasting, style: const TextStyle(fontSize: 20)),
+    );
+  }
+}

@@ -20,19 +20,23 @@ class StopPage extends StatefulWidget {
 class _StopPageState extends State<StopPage> {
   bool loading = true;
   bool starred = false;
-  List<dynamic> items = [];
+  List<TraficResource> items = [];
 
   void loadStop() async {
     final responseItems = jsonDecode(((await http.get(Uri.parse(
             'https://apisvt.avanzagrupo.com/lineas/getTraficosParada?empresa=5&parada=${widget.stop.id}')))
         .body));
 
+    List<TraficResource> newItems = responseItems['data']['traficos']
+        .map<TraficResource>(
+            (e) => TraficResource(e['coLinea'], e['dsLinea'], e['quedan']))
+        .toList();
+
     setState(() {
       loading = false;
 
       items.clear();
-      items.addAll(responseItems['data']['traficos']
-          .map((e) => e['coLinea'] + ' - ' + e['quedan']));
+      items.addAll(newItems);
     });
   }
 
@@ -85,9 +89,7 @@ class _StopPageState extends State<StopPage> {
             ListView.builder(
               itemCount: items.length,
               itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(items[index]),
-                );
+                return items[index].buildStopTile(context);
               },
             ),
       ]),
