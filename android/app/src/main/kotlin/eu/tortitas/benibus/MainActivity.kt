@@ -1,4 +1,4 @@
-package com.example.benibus
+package eu.tortitas.benibus
 
 import io.flutter.embedding.android.FlutterActivity
 
