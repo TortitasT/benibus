@@ -47,6 +47,7 @@ class TraficResource {
 
   ListTile buildStopTile(BuildContext context) {
     return ListTile(
+      leading: const Icon(Icons.directions_bus),
       title: Text(code),
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
