@@ -1,8 +1,12 @@
 import 'dart:convert';
+import 'package:benibus/geolocator.dart';
+import 'package:benibus/pages/map.dart';
 import 'package:benibus/pages/starred.dart';
+import 'package:benibus/resources.dart';
 import 'package:http/http.dart' as http;
 
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
 
 class StopPage extends StatefulWidget {
   const StopPage(
@@ -59,6 +63,21 @@ class _StopPageState extends State<StopPage> {
               });
             },
           ),
+          IconButton(
+            icon: const Icon(Icons.map),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MapPage(
+                    title: 'Map',
+                    stop: StopResource(
+                        widget.id, widget.title, [], LatLng(0, 0), starred),
+                  ),
+                ),
+              );
+            },
+          )
         ],
       ),
       body: Stack(children: [

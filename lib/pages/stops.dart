@@ -1,9 +1,11 @@
 import 'dart:convert';
 
+import 'package:benibus/pages/map.dart';
 import 'package:benibus/pages/starred.dart';
 import 'package:benibus/resources.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:latlong2/latlong.dart';
 
 class StopsPage extends StatefulWidget {
   const StopsPage({super.key, required this.title});
@@ -30,7 +32,12 @@ Future<List<StopResource>> getStops(List<StopResource> currentStops) async {
               ? e['lines'].map<String>((e) => e.toString()).toList()
               : [e['lines']];
 
-          return StopResource(id, name, lines);
+          String lat = e['coordinates'][0];
+          String lon = e['coordinates'][1];
+
+          LatLng latLng = LatLng(double.parse(lat), double.parse(lon));
+
+          return StopResource(id, name, lines, latLng);
         }).toList();
 
   // Set starred
@@ -102,6 +109,17 @@ class _StopsPageState extends State<StopsPage> {
               });
             },
             icon: const Icon(Icons.star),
+          ),
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => MapPage(title: 'Mapa')),
+              ).then((value) {
+                loadStops();
+              });
+            },
+            icon: const Icon(Icons.map),
           ),
         ],
       ),

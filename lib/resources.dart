@@ -1,14 +1,17 @@
 import 'package:benibus/pages/starred.dart';
 import 'package:benibus/pages/stop.dart';
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
 
 class StopResource {
   final String id;
   final String name;
   List<String> lines;
+  LatLng latLng;
   bool starred;
 
-  StopResource(this.id, this.name, this.lines, [this.starred = false]);
+  StopResource(this.id, this.name, this.lines, this.latLng,
+      [this.starred = false]);
 
   ListTile buildStopTile(BuildContext context, Function starredCallback,
       Function returnToPageCallback) {
