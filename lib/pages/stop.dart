@@ -9,13 +9,9 @@ import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 
 class StopPage extends StatefulWidget {
-  const StopPage(
-      {Key? key, required this.title, required this.id, required this.starred})
-      : super(key: key);
+  const StopPage({Key? key, required this.stop}) : super(key: key);
 
-  final String title;
-  final String id;
-  final bool starred;
+  final StopResource stop;
 
   @override
   State<StopPage> createState() => _StopPageState();
@@ -28,7 +24,7 @@ class _StopPageState extends State<StopPage> {
 
   void loadStop() async {
     final responseItems = jsonDecode(((await http.get(Uri.parse(
-            'https://apisvt.avanzagrupo.com/lineas/getTraficosParada?empresa=5&parada=${widget.id}')))
+            'https://apisvt.avanzagrupo.com/lineas/getTraficosParada?empresa=5&parada=${widget.stop.id}')))
         .body));
 
     setState(() {
@@ -44,7 +40,7 @@ class _StopPageState extends State<StopPage> {
   void initState() {
     super.initState();
 
-    starred = widget.starred;
+    starred = widget.stop.starred;
     loadStop();
   }
 
@@ -52,12 +48,12 @@ class _StopPageState extends State<StopPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text(widget.stop.name),
         actions: [
           IconButton(
             icon: Icon(starred ? Icons.star : Icons.star_border),
             onPressed: () async {
-              bool state = await toggleStarredStopToDisk(widget.id);
+              bool state = await toggleStarredStopToDisk(widget.stop.id);
               setState(() {
                 starred = state;
               });
@@ -71,8 +67,7 @@ class _StopPageState extends State<StopPage> {
                 MaterialPageRoute(
                   builder: (context) => MapPage(
                     title: 'Map',
-                    stop: StopResource(
-                        widget.id, widget.title, [], LatLng(0, 0), starred),
+                    stop: widget.stop,
                   ),
                 ),
               );

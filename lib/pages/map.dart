@@ -13,7 +13,7 @@ class MapPage extends StatefulWidget {
   MapPage({Key? key, required this.title, this.stop}) : super(key: key);
 
   final String title;
-  StopResource? stop;
+  final StopResource? stop;
 
   @override
   State<MapPage> createState() => _MapPageState();
@@ -55,9 +55,7 @@ class _MapPageState extends State<MapPage> {
                     context,
                     MaterialPageRoute(
                         builder: (context) => StopPage(
-                              title: stop.name,
-                              id: stop.id,
-                              starred: stop.starred,
+                              stop: stop,
                             )),
                   ).then((value) => loadStops());
                 },

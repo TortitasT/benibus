@@ -22,9 +22,7 @@ class StopResource {
           context,
           MaterialPageRoute(
               builder: (context) => StopPage(
-                    title: name,
-                    id: id,
-                    starred: starred,
+                    stop: this,
                   )),
         ).then((value) => returnToPageCallback());
       },
