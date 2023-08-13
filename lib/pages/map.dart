@@ -42,13 +42,16 @@ class _MapPageState extends State<MapPage> {
   List<Marker> getStopMarkers() {
     return stops
         .map((stop) => Marker(
-              width: 80.0,
-              height: 80.0,
+              width: 45.0,
+              height: 45.0,
               point: stop.latLng,
+              rotate: true,
               builder: (ctx) => IconButton(
+                padding: EdgeInsets.zero,
                 icon: Icon(
                   Icons.location_on,
                   color: stop.starred ? Colors.orange : Colors.green,
+                  size: 45,
                 ),
                 onPressed: () {
                   Navigator.push(
