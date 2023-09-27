@@ -36,6 +36,30 @@ class StopResource {
       ),
     );
   }
+
+  static StopResource fromJson(json) {
+    String id = json['cod'];
+    String name = json['ds'];
+
+    List<String> lines = json['lines'] is List
+        ? json['lines'].map<String>((json) => json.toString()).toList()
+        : [json['lines']];
+
+    String lat = json['coordinates'][0];
+    String lon = json['coordinates'][1];
+    LatLng latLng = LatLng(double.parse(lat), double.parse(lon));
+
+    return StopResource(id, name, lines, latLng);
+  }
+
+  toJson() {
+    return {
+      'cod': id,
+      'ds': name,
+      'lines': lines,
+      'coordinates': [latLng.latitude, latLng.longitude],
+    };
+  }
 }
 
 class TraficResource {

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:benibus/geolocator.dart';
 import 'package:benibus/pages/map.dart';
@@ -7,6 +8,7 @@ import 'package:benibus/resources.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class StopsPage extends StatefulWidget {
   const StopsPage({super.key, required this.title});
@@ -16,30 +18,30 @@ class StopsPage extends StatefulWidget {
   State<StopsPage> createState() => _StopsPageState();
 }
 
+Future<String> getStopsHttp() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  // prefs.remove('stops_cache');
+
+  var cache = prefs.getString('stops_cache');
+  if (cache != null) {
+    return cache;
+  }
+
+  var response = (await http.get(Uri.parse(
+      'https://apisvt.avanzagrupo.com/lineas/getParadas?empresa=5&N=1')));
+
+  prefs.setString('stops_cache', response.body);
+  return response.body;
+}
+
 Future<List<StopResource>> getStops(List<StopResource> currentStops) async {
   List<String> starredStops = await getStarredStopsFromDisk();
 
-  // Load if not loaded
   List<StopResource> stopResources = currentStops.isNotEmpty
       ? currentStops
-      : jsonDecode((await http.get(Uri.parse(
-                  'https://apisvt.avanzagrupo.com/lineas/getParadas?empresa=5&N=1')))
-              .body)['data']['paradas']
-          .map<StopResource>((e) {
-          String id = e['cod'];
-          String name = e['ds'];
-
-          List<String> lines = e['lines'] is List
-              ? e['lines'].map<String>((e) => e.toString()).toList()
-              : [e['lines']];
-
-          String lat = e['coordinates'][0];
-          String lon = e['coordinates'][1];
-
-          LatLng latLng = LatLng(double.parse(lat), double.parse(lon));
-
-          return StopResource(id, name, lines, latLng);
-        }).toList();
+      : jsonDecode(await getStopsHttp())['data']['paradas']
+          .map<StopResource>(StopResource.fromJson)
+          .toList();
 
   // Set starred
   List<StopResource> stopsResources = stopResources.map((stop) {
