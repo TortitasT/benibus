@@ -46,7 +46,7 @@ class _MapPageState extends State<MapPage> {
               height: 45.0,
               point: stop.latLng,
               rotate: true,
-              builder: (ctx) => IconButton(
+              child: IconButton(
                 padding: EdgeInsets.zero,
                 icon: Icon(
                   Icons.location_on,
@@ -121,39 +121,41 @@ class _MapPageState extends State<MapPage> {
           if (!loading)
             FlutterMap(
               options: MapOptions(
-                center: latLng,
-                zoom: 18.0,
+                initialCenter: latLng,
+                initialZoom: 18.0,
                 maxZoom: 18.0,
                 minZoom: 1.0,
               ),
-              nonRotatedChildren: [
-                Align(
-                  alignment: Alignment.bottomRight,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: FloatingActionButton(
-                      onPressed: () {
-                        centerToCurrentLocation();
-                      },
-                      child: const Icon(Icons.my_location),
+              children: [
+                MobileLayerTransformer(
+                  child: Align(
+                    alignment: Alignment.bottomRight,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: FloatingActionButton(
+                        onPressed: () {
+                          centerToCurrentLocation();
+                        },
+                        child: const Icon(Icons.my_location),
+                      ),
                     ),
                   ),
                 ),
-                Align(
-                  alignment: Alignment.bottomLeft,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: TextButton(
-                      onPressed: () {
-                        launchUrl(
-                            Uri.parse('https://openstreetmap.org/copyright'));
-                      },
-                      child: const Text('OpenStreetMap contributors'),
+                MobileLayerTransformer(
+                  child: Align(
+                    alignment: Alignment.bottomLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TextButton(
+                        onPressed: () {
+                          launchUrl(
+                              Uri.parse('https://openstreetmap.org/copyright'));
+                        },
+                        child: const Text('OpenStreetMap contributors'),
+                      ),
                     ),
                   ),
-                )
-              ],
-              children: [
+                ),
                 TileLayer(
                   urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                   userAgentPackageName: 'eu.tortitas.benibus',
